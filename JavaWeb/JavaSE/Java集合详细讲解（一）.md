@@ -1,6 +1,6 @@
 ## 引言
 由前一篇的文章，大家大概可以看到Java集合框架的基本结构和重点，可以这么说Java集合的重心就在List，Set，Map，Queue还有Iterator(迭代器)上。我写这篇文章主要借鉴了李春春的博客和AlienStar的专栏，因为《Java编程思想》说的太散了，在没法去深入了解更多的情况下，只能去高手的文章中吸取精华。
-##Collection接口解读
+## Collection接口解读
 这部分主要分两部分，Collection接口和抽象类AbstractCollection
 - Collection接口
 ```
@@ -357,19 +357,3 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
        
  }
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
