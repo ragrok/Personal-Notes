@@ -9,7 +9,7 @@ public interface Collection<E> extends Iterable<E> {
 
      //返回集合的大小
      int size();
-   
+       
     //判断集合是否为空
     boolean isEmpty();
 
