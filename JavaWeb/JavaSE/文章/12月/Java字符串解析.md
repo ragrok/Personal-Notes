@@ -141,6 +141,7 @@ public class cn.com.github4.WhiterStringBuilder {
 2. 而StringBuilder对象串联字符串的时候，和String关键步骤一模一样。同样是New一个对象，使用append()方法，再调用toString()返回一个字符串。
 3. StringBuffer串联字符串和StringBuilder原理一样。
 4. 这说明String串联字符串时，内部使用的是StringBuilder来进行工作的，而为什么我们还是频繁的使用String呢，因为直接赋值就得到一个String对象太方便了。
+
 ## 3.String，StringBuffer，StringBuilder串联字符串时效率分析
 
 ```

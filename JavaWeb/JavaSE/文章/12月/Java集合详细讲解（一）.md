@@ -272,7 +272,9 @@ public abstract class AbstractCollection<E> implements Collection<E> {
 ```
 可以看到抽象类``AbstractCollection()```是对Collection接口的轻量级实现，实现了大部分基础的接口方法，里面很多地方用到了数组，所以说数组是容器的集合的基础。
 ## List解读
-如前面所说，List集合是一个有序可重复值的列表，通过索引来访问基本数据类型或者保存的引用地址，我们来看下这个接口在Collection上又增加了那些特性。
+如前面所说，List集合是一个有序可重复值的列表，通过索引来访问基本数据类型或者保存对象的引用地址，我们来看下这个接口在Collection上又增加了那些特性。
+- List总体结构图
+![19](../../图片/12月/19.png)
 - List接口
 ```
 //继承Collection接口，拥有Collection接口的所有特性
@@ -340,7 +342,7 @@ public interface List<E> extends Collection<E> {
     ListIterator<E> listIterator();
     //从索引处开始迭代
     ListIterator<E> listIterator(int index);
-    //辅助方法，从某处开始到另一处结束的全部元素
+    //截取，从某处开始，到另一处结束
     List<E> subList(int fromIndex, int toIndex);
     
     @Override
