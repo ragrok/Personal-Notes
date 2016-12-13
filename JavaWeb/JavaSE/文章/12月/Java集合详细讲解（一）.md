@@ -1,361 +1,151 @@
 ## 引言
-由前一篇的文章，大家大概可以看到Java集合框架的基本结构和重点，可以这么说Java集合的重心就在List，Set，Map，Queue还有Iterator(迭代器)上。我写这篇文章主要借鉴了李春春的博客和AlienStar的专栏，因为《Java编程思想》说的太散了，在没法去深入了解更多的情况下，只能去高手的文章中吸取精华。
-## Collection接口解读
+由前一篇的文章，大家大概可以看到Java集合框架的基本结构和重点，可以这么说Java集合的重心就在List，Set，Map，Queue还有Iterator(迭代器)上。我写这篇文章主要借鉴了李春春的博客和AlienStar的专栏，以及chenssy的博客。因为《Java编程思想》说的太散了，在没法去深入了解更多的情况下，只能去高手的文章中吸取精华。
+## Collection
 这部分主要分两部分，Collection接口和抽象类AbstractCollection
 - Collection接口
 ```
 //继承Iterable接口，拥有迭代数据的特性
-public interface Collection<E> extends Iterable<E> {
-
-     //返回集合的大小
-     int size();
-       
-    //判断集合是否为空
-    boolean isEmpty();
-
-   //判断集合是否有该数据
-    boolean contains(Object o);
- 
-   //迭代器
-    Iterator<E> iterator();
-
-   //转为Object数组
-    Object[] toArray();
- 
-  //转为泛型数组(这是形参)
-    <T> T[] toArray(T[] a);
- 
-   //增加元素
-    boolean add(E e);
-
-    //将Collection元素全部添加
-    boolean addAll(Collection<? extends E> c);
- 
-   //删除
-    boolean remove(Object o);
- 
-   //删除所有
-    boolean removeAll(Collection<?> c);
-  
-  //是否包含所有
-    boolean containsAll(Collection<?> c);
-   
- //是否删除成功
-    default boolean removeIf(Predicate<? super E> filter) {
-        Objects.requireNonNull(filter);
-        boolean removed = false;
-        final Iterator<E> each = iterator();
-        while (each.hasNext()) {
-            if (filter.test(each.next())) {
-                each.remove();
-                removed = true;
-            }
-        }
-        return removed;
-    }
-
-    //是否含有交集
-    boolean retainAll(Collection<?> c);
-
-   //清除
-    void clear();
-
-    //数据是否一致
-    boolean equals(Object o);
-
-   //hash码
-    int hashCode();
-   
-    @Override
-    default Spliterator<E> spliterator() {
-        return Spliterators.spliterator(this, 0);
-    }
-
-    default Stream<E> stream() {
-        return StreamSupport.stream(spliterator(), false);
-    }
-
-    default Stream<E> parallelStream() {
-        return StreamSupport.stream(spliterator(), true);
-    }
-}
-
+public interface Collection<E> extends Iterable<E> {}
 ```
-可以看到此接口有判断，增加，删除，取交集，获取长度，将集合封装为数组的能力，所有后面的子接口和抽象类以及实现类都会拥有这些特性。
+再看我们接口中的主要方法
+![20](../../图片/12月/集合/20.png)
+1. 添加
+```
+//增加单个元素
+boolean add(E e);
+//增加整个集合
+boolean addAll(Collection<? extends E> c);
+```
+2. 删除
+```
+//删除单个元素
+boolean remove(Object o);
+//删除整个集合
+boolean removeAll(Collection<?> c);
+```
+3. 判断
+```
+//是否包含单个元素
+boolean contains(Object o);
+//是否包含真个集合
+boolean containsAll(Collection<?> c);
+//是否相同，比较值和内容
+boolean equals(Object o);
+//是否为空
+boolean isEmpty();
+//是否有交集
+boolean retainAll(Collection<?> c);
+```
+4. 转化数组
+```
+//object类型转化为数组
+Object[] toArray();
+//泛型转化为数组
+<T> T[] toArray(T[] a);
+```
+5. 迭代器
+```
+//迭代器
+Iterator<E> iterator();
+```
+6. 其他特性
+```
+//返回集合大小
+int size();
+//返回hashcode
+int hashCode();
+//清空集合
+void clear();
+```
+可以看到此接口有判断，增加，删除，取交集，获取长度，将集合封装为数组，迭代元素的作用，这意味着所有后面的子接口和抽象类以及实现类都会拥有这些特性。
 - 抽象类AbstractCollection
 ```
 //实现Collection接口所定义的功能
-public abstract class AbstractCollection<E> implements Collection<E> {
-    //空的构造器
-    protected AbstractCollection() {
-    }
-    //抽象的迭代器
-    public abstract Iterator<E> iterator();
-    //抽象的获取集合大小
-    public abstract int size();
-    //判断集合是否为空
-    public boolean isEmpty() {
-        return size() == 0;
-    }
-    //是否包含，先判空比较，再判非空比较，内部使用迭代器来移动元素
-    public boolean contains(Object o) {
-        Iterator<E> it = iterator();
-        if (o==null) {
-            while (it.hasNext())
-                if (it.next()==null)
-                    return true;
-        } else {
-            while (it.hasNext())
-                if (o.equals(it.next()))
-                    return true;
-        }
-        return false;
-    }
-   //将元素集合转化为数组
-    public Object[] toArray() {
-        // Estimate size of array; be prepared to see more or fewer elements
-        Object[] r = new Object[size()];
-        Iterator<E> it = iterator();
-        for (int i = 0; i < r.length; i++) {
-            if (! it.hasNext()) // fewer elements than expected
-                return Arrays.copyOf(r, i);
-            r[i] = it.next();
-        }
-        return it.hasNext() ? finishToArray(r, it) : r;
-    }
-    //将泛型元素集合转化为数组(形参)
-    @SuppressWarnings("unchecked")
-    public <T> T[] toArray(T[] a) {
-        // Estimate size of array; be prepared to see more or fewer elements
-        int size = size();
-        T[] r = a.length >= size ? a :
-                  (T[])java.lang.reflect.Array
-                  .newInstance(a.getClass().getComponentType(), size);
-        Iterator<E> it = iterator();
-        for (int i = 0; i < r.length; i++) {
-            if (! it.hasNext()) { // fewer elements than expected
-                if (a == r) {
-                    r[i] = null; // null-terminate
-                } else if (a.length < i) {
-                    return Arrays.copyOf(r, i);
-                } else {
-                    System.arraycopy(r, 0, a, 0, i);
-                    if (a.length > i) {
-                        a[i] = null;
-                    }
-                }
-                return a;
-            }
-            r[i] = (T)it.next();
-        }
-        // more elements than expected
-        return it.hasNext() ? finishToArray(r, it) : r;
-    }
-    //规定最大数组容量大小，防止内存泄漏
-    private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
-    //私有的数组化辅助方法
-    @SuppressWarnings("unchecked")
-    private static <T> T[] finishToArray(T[] r, Iterator<?> it) {
-        int i = r.length;
-        while (it.hasNext()) {
-            int cap = r.length;
-            if (i == cap) {
-                int newCap = cap + (cap >> 1) + 1;
-                // overflow-conscious code
-                if (newCap - MAX_ARRAY_SIZE > 0)
-                    newCap = hugeCapacity(cap + 1);
-                r = Arrays.copyOf(r, newCap);
-            }
-            r[i++] = (T)it.next();
-        }
-        // trim if overallocated
-        return (i == r.length) ? r : Arrays.copyOf(r, i);
-    }
-     //返回最大容量值
-    private static int hugeCapacity(int minCapacity) {
-        if (minCapacity < 0) // overflow
-            throw new OutOfMemoryError
-                ("Required array size too large");
-        return (minCapacity > MAX_ARRAY_SIZE) ?
-            Integer.MAX_VALUE :
-            MAX_ARRAY_SIZE;
-    }
-    //增加方法，定义了抛出的异常方法
-    public boolean add(E e) {
-        throw new UnsupportedOperationException();
-    }
-    //删除方法，先判空，再一步步删除数据，内部同样是使用了迭代器
-    public boolean remove(Object o) {
-        Iterator<E> it = iterator();
-        if (o==null) {
-            while (it.hasNext()) {
-                if (it.next()==null) {
-                    it.remove();
-                    return true;
-                }
-            }
-        } else {
-            while (it.hasNext()) {
-                if (o.equals(it.next())) {
-                    it.remove();
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-    //内部调用contains()
-    public boolean containsAll(Collection<?> c) {
-        for (Object e : c)
-            if (!contains(e))
-                return false;
-        return true;
-    }
-    //添加所有元素，内部调用add()
-    public boolean addAll(Collection<? extends E> c) {
-        boolean modified = false;
-        for (E e : c)
-            if (add(e))
-                modified = true;
-        return modified;
-    }
-    //删除所有元素，内部调用remove(),使用了迭代器
-    public boolean removeAll(Collection<?> c) {
-        Objects.requireNonNull(c);
-        boolean modified = false;
-        Iterator<?> it = iterator();
-        while (it.hasNext()) {
-            if (c.contains(it.next())) {
-                it.remove();
-                modified = true;
-            }
-        }
-        return modified;
-    }
-     //取交集，先迭代，在判断是否包含
-    public boolean retainAll(Collection<?> c) {
-        Objects.requireNonNull(c);
-        boolean modified = false;
-        Iterator<E> it = iterator();
-        while (it.hasNext()) {
-            if (!c.contains(it.next())) {
-                it.remove();
-                modified = true;
-            }
-        }
-        return modified;
-    }
-    //清除
-    public void clear() {
-        Iterator<E> it = iterator();
-        while (it.hasNext()) {
-            it.next();
-            it.remove();
-        }
-    }
-    //返回字符串形式
-    public String toString() {
-        Iterator<E> it = iterator();
-        if (! it.hasNext())
-            return "[]";
-        StringBuilder sb = new StringBuilder();
-        sb.append('[');
-        for (;;) {
-            E e = it.next();
-            sb.append(e == this ? "(this Collection)" : e);
-            if (! it.hasNext())
-                return sb.append(']').toString();
-            sb.append(',').append(' ');
-        }
-    }
-}
+public abstract class AbstractCollection<E> implements Collection<E> {}
 ```
-可以看到抽象类``AbstractCollection()```是对Collection接口的轻量级实现，实现了大部分基础的接口方法，里面很多地方用到了数组，所以说数组是容器的集合的基础。
-## List解读
-如前面所说，List集合是一个有序可重复值的列表，通过索引来访问基本数据类型或者保存对象的引用地址，我们来看下这个接口在Collection上又增加了那些特性。
-- List总体结构图
-![19](../../图片/12月/19.png)
+1. 构造器
+![20](../../图片/12月/集合/2016-12-13_101614.png)
+2. 方法
+![20](../../图片/12月/集合/2016-12-13_101554.png)
+可以看到，就增加了一个```toString()```方法，其他部分都是实现Collection接口的方法，这样最大限度的减少了后面子类的重复书写。
+## List
+这里我摘取了chenssy对List部分所绘的图，看这张图，我们就能知道List部分基本的结构，对比API文档，我们的重点在List接口，AbstractList抽象类，ListIterator迭代器，ArrayList，LinkedList和四个实现类的比较上，知道这些，我们就把重点一一来解读。
+首先要知道的一点，List就是有顺序的列表，简称序列。不管哪一种实现方式，始终离不开序列这两个字眼，应该明白ArrayList是数组实现的序列，LinkedList是链表实现的序列，Vector是数组实现的序列，Stack是栈实现的序列。序列多态性的表现就在这里。
 - List接口
+  List底部是由数组来存储实际数据，所以引入了索引，在list接口的方法中自然有了对索引的操作。
+1. 方法
+ ![20](../../图片/12月/集合/2016-12-13_110034.png)
+2. 增加
+ ```
+//增加单个元素
+boolean add(E e);
+//增加整个集合
+boolean addAll(Collection<? extends E> c);
+//增加整个集合
+boolean addAll(int index, Collection<? extends E> c);
+//增加单个元素
+void add(int index, E element);
+ ```
+ 3. 删除
 ```
-//继承Collection接口，拥有Collection接口的所有特性
-public interface List<E> extends Collection<E> {
-    //得到size()
-    int size();
-    //判断是否为空
-    boolean isEmpty();
-    //判断是否包含
-    boolean contains(Object o);
-    //转化为数组
-    <T> T[] toArray(T[] a);
-    //增加元素
-    boolean add(E e);
-    //删除
-    boolean remove(Object o);
-    //是否全部包含
-    boolean containsAll(Collection<?> c);
-    //添加全部
-    boolean addAll(Collection<? extends E> c);
-    //从某一处插入全部数据
-    boolean addAll(int index, Collection<? extends E> c);
-    //删除全部数据
-    boolean removeAll(Collection<?> c);
-    //是否有交集
-    boolean retainAll(Collection<?> c);
-    //覆盖全部
-    default void replaceAll(UnaryOperator<E> operator) {
-        Objects.requireNonNull(operator);
-        final ListIterator<E> li = this.listIterator();
-        while (li.hasNext()) {
-            li.set(operator.apply(li.next()));
-        }
-    }
-    //排序，使用了Comparetor，引用了Arrays.sort(),这是个二分排序
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    default void sort(Comparator<? super E> c) {
-        Object[] a = this.toArray();
-        Arrays.sort(a, (Comparator) c);
-        ListIterator<E> i = this.listIterator();
-        for (Object e : a) {
-            i.next();
-            i.set((E) e);
-        }
-    }
-    //清除
-    void clear();
-    //判断类型和值是否相等
-    boolean equals(Object o);
-    //hash值
-    int hashCode();
-    //按照索引来取值
-    E get(int index);
-    //按照索引更新值
-    E set(int index, E element);
-    //增加
-    void add(int index, E element);
-    //删除
-    E remove(int index);
-    //元素从开头第一次出现的位置
-    int indexOf(Object o);
-    //元素从结尾开始第一次出现的位置
-    int lastIndexOf(Object o);
-    //专门为List设计的迭代器
-    ListIterator<E> listIterator();
-    //从索引处开始迭代
-    ListIterator<E> listIterator(int index);
-    //截取，从某处开始，到另一处结束
-    List<E> subList(int fromIndex, int toIndex);
-    
-    @Override
-    default Spliterator<E> spliterator() {
-        return Spliterators.spliterator(this, Spliterator.ORDERED);
-    }
-}  
+//删除单个元素
+boolean remove(E e);
+//删除整个元素
+boolean removeAll(Collection<? extends E> c);
+//删除整个元素
+boolean removeAll(int index, Collection<? extends E> c);
+//删除单个元素
+void remove(int index, E element);
 ```
-通过源码可以看到，由于List使用了索引，所以专门有针对索引的方法，```get()```，```set()```，```indexOf()```，```lastIndexOf()```。另外还有一个专门用来迭代List容器的方法```listIterator()```。在这一层，```List```容器就比单独的```Collection```又复杂了一些。
-- 抽象的AbstractCollection类,不具体去写了
+4. 判断
 ```
- //继承AbstractCollection类，实现List接口
-public abstract class AbstractList<E> extends AbstractCollection<E> implements List<E> {  
-       
- }
+//是否包含单个元素
+boolean contains(Object o);
+//是否包含真个集合
+boolean containsAll(Collection<?> c);
+//是否相同，比较值和内容
+boolean equals(Object o);
+//是否为空
+boolean isEmpty();
+//是否有交集
+boolean retainAll(Collection<?> c);
 ```
+5. 和索引相关
+```
+//按照索引快速访问取值
+E get(int index);
+//按照索引快速访问更新值
+E set(int index, E element);
+//从头到尾第一次出现的索引值
+int indexOf(Object o);
+//从尾到头第一次出现的索引值
+int lastIndexOf(Object o);
+//按照索引截取list上的一部分数据
+List<E> subList(int fromIndex, int toIndex);
+```
+6. 迭代器
+```
+//迭代器
+Iterator<E> iterator();
+//list特有的迭代器
+ListIterator<E> listIterator();
+//按照索引值开始迭代
+ListIterator<E> listIterator(int index);
+```
+7. 其他特性
+```
+//返回集合大小
+int size();
+//返回hashcode
+int hashCode();
+//清空集合
+void clear();
+```
+由图片可以看到，拓展了很多东西，不管是add方法，remove方法，还是Iterator，都有了属于自己独有的部分，在取值和更新值上还有get和set方法，这一切都是根据序列和索引的特性来安排的。
+- AbstractList抽象类
+```
+public abstract class AbstractList<E> extends AbstractCollection<E> implements List<E> {}
+```
+具体的不去说了，这一部分就是实现list接口中的方法，最大限度的让实现类共用公共的代码。
+- ArrayList
+首先要说的，ArrayList是我们最常用的集合类，非常便于快速访问和修改集合中的元素。为何会有这样的特性，看完这部分，你就明白了。
