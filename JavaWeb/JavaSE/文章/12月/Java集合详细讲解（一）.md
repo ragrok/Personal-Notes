@@ -166,8 +166,11 @@ List list = Collections.synchronizedList(new ArrayList(...));
 ```
 //默认容量
 private static final int DEFAULT_CAPACITY = 10;
+//使用数组来存放数据
 private static final Object[] EMPTY_ELEMENTDATA = {};
+//默认的空数组
 private static final Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
+//定义存放数组
 transient Object[] elementData; // non-private to simplify nested class access   
 private int size;
 //初始化容量构造
@@ -268,7 +271,7 @@ private void ensureCapacityInternal(int minCapacity) {
         return oldValue;
     }
 ```
-删除也是同理，把中间的元素去掉后，使用```System.arraycopy(elementData, index+1, elementData, index,numMoved)```让后面的元素整体向前移动一位，这也导致了很多不必要的开销。如果大量的数据挪来挪去，JVM，CPU表示压力很大。
+删除也是同理，把中间的元素去掉后，使用```System.arraycopy(elementData, index+1, elementData, index,numMoved)```让后面的元素整体向前移动一位构成一个新数组，这也导致了很多不必要的开销。如果大量的数据挪来挪去，JVM，CPU表示压力很大。
 - LinkedList
   LinkedList是一种双向链表实现的序列，有头尾节点，每个节点保存自身值的同时还存有对前后节点的引用，同时还有索引的应用，结合了队列和列表两种特性，了解了内部数据结构，我们来看LinkedList的源码。
 1. 实现接口和父类
@@ -287,22 +290,10 @@ List list = Collections.synchronizedList(new LinkedList(...));
 ```
 3. 构造器
 ```
-   //节点数 
+    //节点数 
     transient int size = 0;
-
-    /**
-     * Pointer to first node.
-     * Invariant: (first == null && last == null) ||
-     *            (first.prev == null && first.item != null)
-     */
     //头节点 
     transient Node<E> first;
-
-    /**
-     * Pointer to last node.
-     * Invariant: (first == null && last == null) ||
-     *            (last.next == null && last.item != null)
-     */
     //尾节点 
     transient Node<E> last;
    //空构造
@@ -314,7 +305,7 @@ List list = Collections.synchronizedList(new LinkedList(...));
         this();
         addAll(c);
     }
-``
+```
 4. 节点的定义
 ```
  //私有化的方法，定义了前后节点的引用，自身元素
@@ -437,15 +428,13 @@ public class Vector<E>
 ```
 2. 构造器
 ```
-protected Object[] elementData;
-
-    
+    //内部以数组来存储数据
+    protected Object[] elementData;
+    //下标个数
     protected int elementCount;
-
-   
+    //默认增长系数
     protected int capacityIncrement;
-
-    
+    //以初始化容量和增长容量初始化构造器
     public Vector(int initialCapacity, int capacityIncrement) {
         super();
         if (initialCapacity < 0)
@@ -454,18 +443,17 @@ protected Object[] elementData;
         this.elementData = new Object[initialCapacity];
         this.capacityIncrement = capacityIncrement;
     }
-
-    
+    //以初始化容量初始化构造器
     public Vector(int initialCapacity) {
         this(initialCapacity, 0);
     }
 
-    
+    //默认个数为10
     public Vector() {
         this(10);
     }
 
-    
+    //以初始化集合为构造器
     public Vector(Collection<? extends E> c) {
         elementData = c.toArray();
         elementCount = elementData.length;
@@ -474,12 +462,12 @@ protected Object[] elementData;
             elementData = Arrays.copyOf(elementData, elementCount, Object[].class);
     }
 ```
-
 3. 扩容方式
 ```
  private void grow(int minCapacity) {
         // overflow-conscious code
         int oldCapacity = elementData.length;
+        //新的容量是老容量加上默认增长系数或者直接是原来的老容量，这会导致很大的缺陷，无法精准的计算数组开销。
         int newCapacity = oldCapacity + ((capacityIncrement > 0) ?
                                          capacityIncrement : oldCapacity);
         if (newCapacity - minCapacity < 0)
@@ -489,5 +477,163 @@ protected Object[] elementData;
         elementData = Arrays.copyOf(elementData, newCapacity);
     }
 ```
+Vector是很老的容器集合，实际的开发已经不使用了，即使有线程安全这个特性，和ArrayList比较也没多大优势。
 - Stack
-- LinkedList，ArrayList，Vector，Stack效率分析和总结
+Stack继承于Vector，在Vectror的基础上增加了几个方法，使得数据可以先进后出
+```
+public
+class Stack<E> extends Vector<E> {
+    //空的构造器
+    public Stack() {
+    }
+    //压栈，先进的数据在栈底
+    public E push(E item) {
+        addElement(item);
+
+        return item;
+    }
+    //出栈，删除栈顶数据
+    public synchronized E pop() {
+        E       obj;
+        int     len = size();
+
+        obj = peek();
+        removeElementAt(len - 1);
+
+        return obj;
+    }
+
+    //出栈，不删除栈顶数据
+    public synchronized E peek() {
+        int     len = size();
+
+        if (len == 0)
+            throw new EmptyStackException();
+        return elementAt(len - 1);
+    }
+
+    //为空
+    public boolean empty() {
+        return size() == 0;
+    }
+
+    //搜索数据
+    public synchronized int search(Object o) {
+        int i = lastIndexOf(o);
+
+        if (i >= 0) {
+            return size() - i;
+        }
+        return -1;
+    }
+    //序列化号码
+    private static final long serialVersionUID = 1224463164541339165L;
+}
+
+```
+Stack拥有先进后出的特性，现在Java官方提倡大家使用ArrayQueue(双端队列)来代替这个类的使用。我们在讲解Queque的时候会提到。
+- LinkedList，ArrayList，Vector，Stack效率分析和总结 
+根据AlienStar同学的代码，分别对四个集合按照顺序来做效率分析
+```
+public class testList {
+	// 新建不同的类型
+	private static List<String> arrayList = new ArrayList<String>();
+	private static Vector<String> vector = new Vector<String>();
+	private static Stack<String> stack = new Stack<String>();
+	private static LinkedList<String> linkedList = new LinkedList<String>();
+
+	private static long startTime() {
+		return System.currentTimeMillis();
+	}
+
+	private static long endTime() {
+		return System.currentTimeMillis();
+	}
+
+	// 测试插入
+	private static void testInsert() {
+		testInsert(arrayList);
+		testInsert(vector);
+		testInsert(stack);
+		testInsert(linkedList);
+	}
+
+	// 测试查询
+	private static void testRandomAcess() {
+		testRandomAcess(arrayList);
+		testRandomAcess(vector);
+		testRandomAcess(stack);
+		testRandomAcess(linkedList);
+	}
+
+	// 测试迭代
+	private static void testIterator() {
+		testIterator(arrayList);
+		testIterator(vector);
+		testIterator(stack);
+		testIterator(linkedList);
+	}
+
+	// 测试删除
+	private static void testDelete() {
+		testDelete(arrayList);
+		testDelete(vector);
+		testDelete(stack);
+		testDelete(linkedList);
+	}
+
+	private static void testDelete(List<String> list) {
+		long start = startTime();
+		for (int i = 0; i < list.size(); i++) {
+			list.remove(i);
+		}
+		long end = endTime();
+		System.out.println("删除:"+(end - start)+"ms");
+	}
+
+	private static void testIterator(List<String> list) {
+		long start = startTime();
+		Iterator<String> iterator = list.iterator();
+		if (iterator.hasNext()) {
+			iterator.next();
+		}
+		long end = endTime();
+		System.out.println("迭代:"+(end - start)+"ms");
+	}
+
+	private static void testRandomAcess(List<String> list) {
+		long start = startTime();
+		for (int i = 0; i < list.size(); i++) {
+			list.get(i);
+		}
+		long end = endTime();
+		System.out.println("测试随机访问:"+(end - start)+"ms");
+	}
+
+	private static void testInsert(List<String> list) {
+		long start = startTime();
+		for (int i = 0; i < 100000; i++) {
+			list.add(i,"ssdfssdfsf");
+		}
+		long end = endTime();
+		System.out.println("测试插入:"+(end - start)+"ms");
+	}
+
+	public static void main(String[] args) {
+		testInsert();
+		testIterator();
+		testRandomAcess();
+		testDelete();
+	}
+	
+}
+```
+![1](../../图片/12月/集合/1.png)
+- 按照10万条数据来测试，本人电脑8G内存，jdk1.8，可以看到，各自在增删改查迭代上面的性能。
+1. ArrayList和Vector的总结：
+- a 内部都是数组实现，两者有很大的相似性。
+- b ArrayList线程不安全，Vector线程安全，单线程也好，多线程也好，优先选择ArrayList(多线程使用辅助类Collections)。
+2. ArrayList和linkedList的总结
+- a 两者都是线程不安全，都可以使用索引来操作数据。
+- b ArrayList更擅长查询和修改，LinkedList擅长增加和删除。
+
