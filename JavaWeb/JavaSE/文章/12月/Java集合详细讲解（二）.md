@@ -388,3 +388,14 @@ ArrayDeque按照两倍的方式来扩容，之后调用```System.arraycopy()```�
 可以看到，双端队列可以在头尾处做各种增删改查的工作，即可以做队列使用，也可以做栈使用。
 - LinkedList，ArrayDeque和Stack比较选择
 当需要较多使用增删的队列的时候，优先使用LinkedList，查询和更新比较多的时候，优先ArrayDeque，Stack用到的地方优先用ArrayDeque来替代。
+## Map
+我们优先了解Map，再去理解Set就容易了很多。Map是一种映射，而不是单个元素的集合。主要通过键来找值，使用的算法是散列算法。                             - Map接口
+```
+//定义Map接口
+public interface Map<K,V> {
+    //定义内部接口
+    interface Entry<K,V> {
+
+    }
+}
+```                                                                                                                                        ![1](../../图片/12月/集合/2.png)
