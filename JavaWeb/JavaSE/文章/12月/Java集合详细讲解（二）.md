@@ -207,7 +207,7 @@ Collection<String> strings = Collections.synchronizedCollection(new ArrayDeque<S
     //最少的初始化容量 
     private static final int MIN_INITIAL_CAPACITY = 8;
     
-    //空的构造器
+    //空的构造器,默认数组大小为16
      public ArrayDeque() {
         elements = new Object[16];
     }
@@ -245,4 +245,146 @@ private void doubleCapacity() {
         tail = n;
     }
 ```
-5. 
+ArrayDeque按照两倍的方式来扩容，之后调用```System.arraycopy()```将旧数组的值复制到新数组。
+5. 双端队列操作
+```
+    //在头部添加
+    public void addFirst(E e) {
+        if (e == null)
+            throw new NullPointerException();
+        elements[head = (head - 1) & (elements.length - 1)] = e;
+        if (head == tail)
+            doubleCapacity();
+    }
+
+    //在头尾添加
+    public void addLast(E e) {
+        if (e == null)
+            throw new NullPointerException();
+        elements[tail] = e;
+        if ( (tail = (tail + 1) & (elements.length - 1)) == head)
+            doubleCapacity();
+    }
+
+    //在头部添加，成功返回true
+    public boolean offerFirst(E e) {
+        addFirst(e);
+        return true;
+    }
+
+    //在尾部添加，成功返回true
+    public boolean offerLast(E e) {
+        addLast(e);
+        return true;
+    }
+
+    //删除头部元素，为空抛出NoSuchElementException
+    public E removeFirst() {
+        E x = pollFirst();
+        if (x == null)
+            throw new NoSuchElementException();
+        return x;
+    }
+
+    ////删除尾部元素，为空抛出NoSuchElementException
+    public E removeLast() {
+        E x = pollLast();
+        if (x == null)
+            throw new NoSuchElementException();
+        return x;
+    }
+    
+    //添加到头部，为空返回null
+    public E pollFirst() {
+        int h = head;
+        @SuppressWarnings("unchecked")
+        E result = (E) elements[h];
+        // Element is null if deque empty
+        if (result == null)
+            return null;
+        elements[h] = null;     // Must null out slot
+        head = (h + 1) & (elements.length - 1);
+        return result;
+    }
+    
+    //添加到尾部，为空返回null
+    public E pollLast() {
+        int t = (tail - 1) & (elements.length - 1);
+        @SuppressWarnings("unchecked")
+        E result = (E) elements[t];
+        if (result == null)
+            return null;
+        elements[t] = null;
+        tail = t;
+        return result;
+    }
+
+    //得到头部的元素，为空抛出NoSuchElementException
+    public E getFirst() {
+        @SuppressWarnings("unchecked")
+        E result = (E) elements[head];
+        if (result == null)
+            throw new NoSuchElementException();
+        return result;
+    }
+
+    //得到尾部的元素，为空抛出NoSuchElementException
+    public E getLast() {
+        @SuppressWarnings("unchecked")
+        E result = (E) elements[(tail - 1) & (elements.length - 1)];
+        if (result == null)
+            throw new NoSuchElementException();
+        return result;
+    }
+    
+    //得到头部的元素
+    @SuppressWarnings("unchecked")
+    public E peekFirst() {
+        // elements[head] is null if deque empty
+        return (E) elements[head];
+    }
+
+    //得到尾部的元素
+    @SuppressWarnings("unchecked")
+    public E peekLast() {
+        return (E) elements[(tail - 1) & (elements.length - 1)];
+    }
+
+    //删除第一次匹配到的元素，从头部到尾部
+    public boolean removeFirstOccurrence(Object o) {
+        if (o == null)
+            return false;
+        int mask = elements.length - 1;
+        int i = head;
+        Object x;
+        while ( (x = elements[i]) != null) {
+            if (o.equals(x)) {
+                delete(i);
+                return true;
+            }
+            i = (i + 1) & mask;
+        }
+        return false;
+    }
+
+    //删除第一次匹配到的元素，从尾部到头部
+    public boolean removeLastOccurrence(Object o) {
+        if (o == null)
+            return false;
+        int mask = elements.length - 1;
+        int i = (tail - 1) & mask;
+        Object x;
+        while ( (x = elements[i]) != null) {
+            if (o.equals(x)) {
+                delete(i);
+                return true;
+            }
+            i = (i - 1) & mask;
+        }
+        return false;
+    }
+
+```
+可以看到，双端队列可以在头尾处做各种增删改查的工作，即可以做队列使用，也可以做栈使用。
+- LinkedList，ArrayDeque和Stack比较选择
+当需要较多使用增删的队列的时候，优先使用LinkedList，查询和更新比较多的时候，优先ArrayDeque，Stack用到的地方优先用ArrayDeque来替代。

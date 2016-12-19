@@ -636,4 +636,9 @@ public class testList {
 2. ArrayList和linkedList的总结
 - a 两者都是线程不安全，都可以使用索引来操作数据。
 - b ArrayList更擅长查询和修改，LinkedList擅长增加和删除。
+## 参考
+- Java编程思想
+-  AlienStar：[Java集合总览](http://blog.csdn.net/crave_shy/article/details/17416791)
+-  中科春哥：[JavaSE实战----API(中)集合框架](http://blog.csdn.net/zhongkelee/article/details/46801449)
+-  陈明的博客：[chenssy](http://my.csdn.net/chenssy)
 
