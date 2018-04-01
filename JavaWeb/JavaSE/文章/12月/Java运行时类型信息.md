@@ -1,10 +1,10 @@
-﻿﻿#### RTTI(Runtime Type Information):运行时类型信息可以在程序运行时发现和使用类型信息。
+#### RTTI(Runtime Type Information):运行时类型信息可以在程序运行时发现和使用类型信息。
 #### Java在运行时识别对象类型和信息的两种方式:
 > 1.传统的RTTI，假定在编译时就已经知道了所有的类型信息。
 > 2.反射机制:运行时再去检测和使用类的信息。
 #### 为什么需要RTTI
 先看下面这幅图，基类是Shape，派生类是Circle，Square，Triangle，他们都继承了基类的方法draw().
-![6](../../图片/12月/6.png)
+![这里写图片描述](http://img.blog.csdn.net/20161119181830651)
 假设我们要新增一个派生类，那么使用***基类引用派生类的对象***就显得异常的方便，也不会影响原来的代码。
 而draw()方法在所有派生类中都会被覆盖，在运行时使用了***动态绑定***这个机制。当我们使用泛化的Shape来调用子类draw()方法时，也能产生正确的行为，这就是***多态***的原理。
 **RTTI例子**
@@ -202,7 +202,7 @@ public class CompareRtti {
         System.out.println("x.getClass().equals(Derived.class):"+(x.getClass().equals(Derived.class)));
         System.out.println("x.getClass().equals(Base.class):"+(x.getClass().equals(Base.class)));
     }
-    
+
     public static void main(String[] args) {
         test(new Base());
         test(new Derived());
@@ -237,15 +237,15 @@ public class CompareRtti {
 - 首先定义一个类
 ```
 public class ManEntity {
-       
+
 	private String name = "xiaowang";
 	private String password = "1234";
 	private int age = 123;
-	
+
 	private void sayHellow(){
 		System.out.println("Hello,ManEntity");
 	}
-	
+
 	public String getName() {
 		return name;
 	}
@@ -282,10 +282,10 @@ public class ManEntity {
 	public ManEntity() {
 		super();
 	}
-	
-	
-	
-	
+
+
+
+
 }
 
 
@@ -293,17 +293,17 @@ public class ManEntity {
 - 得到基本信息
 ```
 public class TestReflect {
-      
+
 	  public static void main(String[] args) {
 		try {
-			//通过class.forName()得到类对象 
+			//通过class.forName()得到类对象
 			Class class1 = Class.forName("cn.com.github.reflect.ManEntity");
 			//通过字面常亮得到类对象
 			Class class2 = ManEntity.class;
 			//通过new方法得到对象，通过对象间接得到类对象
 			ManEntity nEntity = new ManEntity();
 			Class class3 = nEntity.getClass();
-			
+
 			//得到所有的方法
 			Method[] methods = class1.getDeclaredMethods();
 			for(Method method : methods){
@@ -317,7 +317,7 @@ public class TestReflect {
 //			public java.lang.String cn.com.github.reflect.ManEntity.toString()
 //			public java.lang.String cn.com.github.reflect.ManEntity.getName()
 //			public void cn.com.github.reflect.ManEntity.setName(java.lang.String)
-			
+
 			//得到所有的属性
 			Field[] fields = class2.getDeclaredFields();
 			for(Field field : fields){
@@ -341,7 +341,7 @@ public class TestReflect {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -456,12 +456,12 @@ public class TestReflect1 {
 ```
 public class TestReflect3 {
 
-	
+
 	public static void main(String[] args) {
 		ArrayList<Integer> list = new ArrayList<Integer>();
 		list.add(1);
 		list.add(2);
-		
+
 		try {
 			Class class1 = java.util.ArrayList.class;
 			Method add = class1.getMethod("add", Object.class);
@@ -472,9 +472,9 @@ public class TestReflect3 {
 			// TODO: handle exception
 		}
 	}
-	
-    
-	
+
+
+
 }
 
 ```
