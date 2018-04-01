@@ -9,9 +9,9 @@
 
 2. 基本数据类型
 ---
-![4](../../图片/12月/4.png) 
+![4](../../图片/12月/4.png)
 3. 数组
---- 
+---
  在Java中，数组被看成一个对象，定义的方式有两种，int[] a和int a[]；第二种是c/c++对数组的定义方式，java推荐第一种。
 - 3.1 一维数组：
     1. 先new对象，再初始化，默认值是0
@@ -51,4 +51,3 @@
 - [春哥JavaSE实战: Jdk配置，数组及其应用，栈和堆内存详解](http://blog.csdn.net/zhongkelee/article/details/43239355)
 - [Java中一维数组和二维数组的定义](http://blog.csdn.net/gideal_wang/article/details/3647837)
 - Thinking in Java
-
