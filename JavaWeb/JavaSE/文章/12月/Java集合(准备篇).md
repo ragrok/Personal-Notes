@@ -1,14 +1,14 @@
-## 写在前面的话
+﻿## 写在前面的话
 我们前面把Java运行时类型信息和Java泛型说了，就是为现在要研究的Java集合做准备。Java集合前还有一节数组篇，这是Java集合容器的根基，很多的容器类型实际上都是数组负责实际存储，其他数据结构来负责处理数据。个人打算在12月底将《Java编程思想》看完，所以时间上不怎么宽裕。集合这部分就讲个大概的。我打算把基本的点都涉及到，至于集合源码那些细节的部分，以后再来补充。下面部分是我为研究Java集合做的基本准备。
 ## JDK文档
 涉及到任何语言开发，毫无疑问，API文档是最便捷地了解这门语言的工具。Java在工业强语言领域之所以独步天下，详尽的文档也是背后功臣。很多人即使不知道这个类是干嘛的，靠着API也能把业务做出来。
 - 首先我们从网上下载或者到JDK目录去找一份这样的文档
 - 解压进入文件夹
-![11](../../图片/12月/11.png)
+![这里写图片描述](http://img.blog.csdn.net/20161129125333568)
 - 点击进入首页
-![12](../../图片/12月/12.png)
+![这里写图片描述](http://img.blog.csdn.net/20161129125407850)
 - 找到Collections进入集合部分，之后调整一下样式，点击Frames调整为窗口模式
-![9](../../图片/12月/9.png)
+![这里写图片描述](http://img.blog.csdn.net/20161129125442007)
 ## 数组和泛型
 1. 我们先抛出这样的问题：Java中有大量的容器，为何**数组**特殊呢？
 没有比较就没有威力(伤害)，我们从三方面来说，分别是效率，类型，保存基本类型的能力。
@@ -23,7 +23,7 @@
 4. 数组与泛型的结合
    数组和泛型不能很好的结合，我们不能实例化有参数类型的泛型数组
    ```
-    List<String>[] list = new ArrayList<String>[10]; 
+    List<String>[] list = new ArrayList<String>[10];
    //Cannot create a generic array of ArrayList<String>
    ```
  我们的确不能参数化类，但我们可以参数化数组
@@ -36,21 +36,21 @@ class classParameter<T>{
 class MethodParamenter{
     public static<T> T[] f(T[] arg){
         return arg;
-    } 
+    }
 }
 public class ParameterizedArrayType {
-    
+
     public static void main(String[] args) {
         Integer[] ints = {1,2,3,4,5};
         Double[] doubles = {1.1,2.2,3.3};
-        
+
         Integer[] ints2 = new classParameter<Integer>().f(ints);
         Double[] doubles2 = new classParameter<Double>().f(doubles);
         ints2 = MethodParamenter.f(ints);
         doubles2 = MethodParamenter.f(doubles);
     }
 }
-``` 
+```
 使用曲线救国来达到目的。另外，编译器确实不能让你实例化泛型数组，但它允许你创建对数组引用，有的时候我们可以利用这些**后门**来做很多事。至于更多，请参考《Java编程思想》。
 ## System类和Arrays类
 1. ```System```类在```java.lang.object```包下，是一个十分基础的系统类，在我们平时的使用中，对```System.gc()```垃圾回收这个方法方法使用比较多，涉及到集合这块，对迁移数组这个方法使用的比较多，这里重点讲。
@@ -82,36 +82,43 @@ public class ParameterizedArrayType {
 集合这种Java重要的容器组件，设计他们的Java专家们肯定在中间使用的各种各样的模式。我个人是新手，不懂这些东西。我的思路是尽量不去牵扯这些太复杂的东西，干扰自己当前研究的重点，但知道使用了设计模式这个东西还是很有必要的。有能力的同学可以去看API文档，看设计模式，印证它的设计思想。
 **Java集合类结构图**
  了解大概的东西即可。
-![17](../../图片/12月/17.png)
+![这里写图片描述](http://img.blog.csdn.net/20161129125510293)
 ## 数据结构
 容器既然存储数据，就涉及到各种各样的处理数据的数据结构。数组，双链表，hash算法，hash碰撞，栈，堆，树，什么的。具体到研究某个具体类实现的方式再来说，看不懂也没关系，丢一边，总之要在意识上知道这个东西的存在，刻意去看数据结构和算法的书，那就钻牛角尖了。
 ##《Effective Java》
 这是本书，配合《Java编程思想》有奇效。之所以推荐它，是因为Java集合的类库设计者就是它的作者Joshua Bloch，作者对Java类库设计的套路肯定会在这本书里体现出来。我们不需要一板一眼的全读，就读涉及到Java集合类库这一部分，哪里出现读哪里。
 ## Eclipse反编译工具
 要研究Java集合，免不了要直接去看源码，那就需要反编译工具。Eclipse和IDEA都有自己的反编译工具，以Eclipse为例，来安装反编译工具。
-- 点击Window--->Eclipse Marketplace 
-![16](../../图片/12月/16.png)
+- 点击Window--->Eclipse Marketplace
+![这里写图片描述](http://img.blog.csdn.net/20161129125548900)
 - 搜索"反编译"
-![7](../../图片/12月/7.png)
+![这里写图片描述](http://img.blog.csdn.net/20161129125630652)
 - 点击安装，等待完成
-![13](../../图片/12月/13.png)
+![这里写图片描述](http://img.blog.csdn.net/20161129125654840)
 - 使用，以Collection集合为例，鼠标点击类名，直接进入。
-![14](../../图片/12月/14.png)
+![这里写图片描述](http://img.blog.csdn.net/20161129125717480)
 - 窗口上方会出现反编译器几个汉字，点击菜单栏能选择使用哪个反编译器。更多的用法请自己Google。
-![10](../../图片/12月/10.png)
+![这里写图片描述](http://img.blog.csdn.net/20161129125730809)
 ## Java常用命令
 这些常用命令请下载官方文档，英文好的同学直接看就行，英文不好的就用Google搜索汉化的文章吧，反正知道怎么用就行。我这里截个图。
-![18](../../图片/12月/18.png)
+![这里写图片描述](http://img.blog.csdn.net/20161129125921264)
 对于常用的命令，一般是javap和jconsole，一个是用来反编译class文件，看编译细节，一个是用来比较集合不同数据结构实现时，看虚拟机内存使用情况，从而知道它们的优缺点。
 例如这样一段代码
 ```
-import java.applet.*;public class DocFooter extends Applet {
+import java.awt.*;
+import java.applet.*;
+
+public class DocFooter extends Applet {
         String date;
-        String email;        public void init() {
+        String email;
+
+        public void init() {
                 resize(500,100);
                 date = getParameter("LAST_UPDATED");
                 email = getParameter("EMAIL");
-        }        public void paint(Graphics g) {
+        }
+
+        public void paint(Graphics g) {
                 g.drawString(date + " by ",100, 15);
                 g.drawString(email,290,15);
         }
@@ -119,12 +126,19 @@ import java.applet.*;public class DocFooter extends Applet {
 ```
 - 使用```javap -c DocFooter.class```来看编译完后的字节码
 ```
+Compiled from "DocFooter.java"
 public class DocFooter extends java.applet.Applet {
-  java.lang.String date;  java.lang.String email;  public DocFooter();
+  java.lang.String date;
+
+  java.lang.String email;
+
+  public DocFooter();
     Code:
        0: aload_0       
        1: invokespecial #1                  // Method java/applet/Applet."<init>":()V
-       4: return          public void init();
+       4: return        
+
+  public void init();
     Code:
        0: aload_0       
        1: sipush        500
@@ -140,7 +154,9 @@ public class DocFooter extends java.applet.Applet {
       21: ldc           #6                  // String EMAIL
       23: invokevirtual #4                  // Method getParameter:(Ljava/lang/String;)Ljava/lang/String;
       26: putfield      #7                  // Field email:Ljava/lang/String;
-      29: return          public void paint(java.awt.Graphics);
+      29: return        
+
+  public void paint(java.awt.Graphics);
     Code:
        0: aload_1       
        1: new           #8                  // class java/lang/StringBuilder
@@ -149,7 +165,7 @@ public class DocFooter extends java.applet.Applet {
        8: aload_0       
        9: getfield      #5                  // Field date:Ljava/lang/String;
       12: invokevirtual #10                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
-      15: ldc           #11                 // String  by 
+      15: ldc           #11                 // String  by
       17: invokevirtual #10                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
       20: invokevirtual #12                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
       23: bipush        100
@@ -165,9 +181,9 @@ public class DocFooter extends java.applet.Applet {
 }
 ```
 - 使用```jconsole```来参看JVM内存使用情况
-![8](../../图片/12月/8.png)
+![这里写图片描述](http://img.blog.csdn.net/20161129125816497)
 - 点进去，就可以在控制台看到虚拟机的使用情况
-![15](../../图片/12月/15.png)
+![这里写图片描述](http://img.blog.csdn.net/20161129125904388)
 ## Google和Stackoverflow
 作为技术人员，fangqiang不是个很难的事吧，遇到不懂的就问这两个，现在不都面向Google和Stackoverflow编程吗?
 ## 总结
