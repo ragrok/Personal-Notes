@@ -17,6 +17,8 @@
  - [java读书笔记：LinkendList源码解读(基于jdk1.8)](./JavaWeb/JavaSE/java读书笔记：LinkendList源码解读.md)
  - [java读书笔记_List集合总结](./JavaWeb/JavaSE/java读书笔记_List集合总结.md)
  - [java读书笔记：内部类](./JavaWeb/JavaSE/java读书笔记：内部类.md)
+## JVM
+ - [java知识点文章](./Jvm/java知识点文章.md)
 ## JavaEE
  - [FastJson互相循环的问题](./JavaWeb/JavaEE/FastJson互相循环的问题.md)
 ## 数据库
