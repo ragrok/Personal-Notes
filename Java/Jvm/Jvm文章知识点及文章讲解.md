@@ -9,5 +9,4 @@
 - [Java三种编译方式：前端编译 JIT编译 AOT编译](https://blog.csdn.net/tjiyu/article/details/53748965)
 - [Java前端编译：Java源代码编译成Class文件的过程](https://blog.csdn.net/tjiyu/article/details/53786262)
 - [Java即时编译(JIT编译)：运行时把Class文件字节码编译成本地机器码](https://blog.csdn.net/tjiyu/article/details/53948009)
-- []()
 
